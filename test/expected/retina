@@ -2,7 +2,7 @@
 
 <img src="srcset_already.png" srcset="">
 
-<img src="non_responsive.png" width="150">
+<img src="non_responsive.png" srcset="non_responsive_x1.5.png 1.5x, non_responsive_x2.png 2x" width="150">
 
 <img src="never_process.jpg" srcset="" sizes="">
 

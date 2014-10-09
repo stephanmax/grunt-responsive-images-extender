@@ -36,13 +36,31 @@ exports.responsive_images_extender = {
 
     test.done();
   },
-  custom_options: function(test) {
+  retina: function(test) {
     test.expect(1);
 
-    var actual = grunt.file.read('tmp/custom_options');
-    var expected = grunt.file.read('test/expected/custom_options');
-    test.equal(actual, expected, 'should describe what the custom option(s) behavior is.');
+    var actual = grunt.file.read('tmp/retina');
+    var expected = grunt.file.read('test/expected/retina');
+    test.equal(actual, expected, 'should describe what the retina behavior is.');
 
     test.done();
   },
+  use_sizes: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('tmp/use_sizes');
+    var expected = grunt.file.read('test/expected/use_sizes');
+    test.equal(actual, expected, 'should describe what the sizes attribute behavior is.');
+
+    test.done();
+  },
+  all: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('tmp/all');
+    var expected = grunt.file.read('test/expected/all');
+    test.equal(actual, expected, 'should describe what the complete behavior is.');
+
+    test.done();
+  }
 };

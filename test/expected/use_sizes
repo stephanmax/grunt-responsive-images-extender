@@ -1,0 +1,9 @@
+<img alt="A simple image" src="simple.jpg" srcset="simple-small.jpg 320w, simple-medium.jpg 640w, simple-large.jpg 1024w" sizes="(max-width: 30em) 100vw, (max-width: 50em) 50vw, calc(33vw - 100px)" title="A simple image">
+
+<img src="srcset_already.png" sizes="(max-width: 30em) 100vw, (max-width: 50em) 50vw, calc(33vw - 100px)" srcset="">
+
+<img src="non_responsive.png" width="150">
+
+<img src="never_process.jpg" srcset="" sizes="">
+
+<img src="never_process.jpg" width="150" srcset="">

@@ -1,1 +1,9 @@
-Testing
+<img alt="A simple image" src="simple.jpg" title="A simple image">
+
+<img src="srcset_already.png" srcset="">
+
+<img src="non_responsive.png" width="150">
+
+<img src="never_process.jpg" srcset="" sizes="">
+
+<img src="never_process.jpg" width="150" srcset="">

@@ -10,7 +10,6 @@
 
 module.exports = function(grunt) {
 
-  // Project configuration.
   grunt.initConfig({
     jshint: {
       all: [
@@ -23,51 +22,80 @@ module.exports = function(grunt) {
       }
     },
 
-    // Before generating any new files, remove any previously-created files.
     clean: {
       tests: ['tmp']
     },
 
-    // Configuration to be run (and then tested).
+    // Four example configurations to be run (and then tested)
     responsive_images_extender: {
       default_options: {
-        options: {
-        },
         files: {
-          'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123']
+          'tmp/default_options': 'test/fixtures/testing'
         }
       },
-      custom_options: {
+      use_sizes: {
         options: {
-          separator: ': ',
-          punctuation: ' !!!'
+          useSizes: true
         },
         files: {
-          'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123']
+          'tmp/use_sizes': 'test/fixtures/testing'
+        }
+      },
+      retina: {
+        options: {
+          srcsetRetina: [{
+            suffix: '_x1.5',
+            value: '1.5x'
+          },{
+            suffix: '_x2',
+            value: '2x'
+          }]
+        },
+        files: {
+          'tmp/retina': 'test/fixtures/testing'
+        }
+      },
+      all: {
+        options: {
+          useSizes: true,
+          srcset: [{
+            suffix: '-200',
+            value: '200w'
+          },{
+            suffix: '-400',
+            value: '400w'
+          },{
+            suffix: '-800',
+            value: '800w'
+          }],
+          srcsetRetina: [{
+            suffix: '_x1.5',
+            value: '1.5x'
+          },{
+            suffix: '_x2',
+            value: '2x'
+          }]
+        },
+        files: {
+          'tmp/all': 'test/fixtures/testing'
         }
       }
     },
 
-    // Unit tests.
     nodeunit: {
       tests: ['test/*_test.js']
     }
 
   });
 
-  // Actually load this plugin's task(s).
   grunt.loadTasks('tasks');
 
-  // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
 
-  // Whenever the "test" task is run, first clean the "tmp" dir, then run this
-  // plugin's task(s), then test the result.
   grunt.registerTask('test', ['clean', 'responsive_images_extender', 'nodeunit']);
 
-  // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);
 
 };

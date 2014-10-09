@@ -101,10 +101,10 @@ into this:
 
 ```html
 <img alt="A simple image" src="simple.jpg"
-  srcset="simple-small.jpg 320w,
-          simple-medium.jpg 640w,
-          simple-large.jpg 1024w"
-  title="A simple image">
+     srcset="simple-small.jpg 320w,
+             simple-medium.jpg 640w,
+             simple-large.jpg 1024w"
+     title="A simple image">
 ```
 
 #### Custom Options
@@ -157,18 +157,18 @@ into this:
 
 ```html
 <img alt="A simple image" src="simple.jpg"
-  srcset="simple-200.jpg 200w,
-          simple-400.jpg 400w,
-          simple-800.jpg 800w"
-  sizes="(max-width: 30em) 100vw,
-         (max-width: 50em) 50vw,
-         calc(33vw - 100px)"
-  title="A simple image">
+     srcset="simple-200.jpg 200w,
+             simple-400.jpg 400w,
+             simple-800.jpg 800w"
+     sizes="(max-width: 30em) 100vw,
+            (max-width: 50em) 50vw,
+            calc(33vw - 100px)"
+     title="A simple image">
 
 <img src="non_responsive.png"
-  srcset="non_responsive_x1.5.png 1.5x,
-          non_responsive_x2.png 2x"
-  width="150">
+     srcset="non_responsive_x1.5.png 1.5x,
+             non_responsive_x2.png 2x"
+     width="150">
 ```
 
 Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsive-images-extender/blob/master/Gruntfile.js) for more usage examples.
@@ -181,7 +181,7 @@ Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsiv
 
 * **grunt-responsive-images-converter**
 
-  This [task](https://github.com/miller/grunt-responsive-images-converter/) can be used to convert images in markdown files into a `<picture>` tag. Unfortunately, it is limited to markdown files. Also, read [here](http://blog.cloudfour.com/dont-use-picture-most-of-the-time/) why `<picture>` is not the smartest way to go in most cases.
+  This [task](https://github.com/miller/grunt-responsive-images-converter/) can be used to convert images in markdown files into a `<picture>` tag. Unfortunately, it is limited to markdown files. Also, read [here](http://blog.cloudfour.com/dont-use-picture-most-of-the-time/) why `<picture>` is not the smartest thing in most cases.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).

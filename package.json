@@ -37,6 +37,6 @@
     "grunt": "~0.4.5"
   },
   "keywords": [
-    "gruntplugin", "responsive", "images", "img", "extend", "convert", "converter", "srcset", "sizes"
+    "gruntplugin", "grunt", "responsive", "img", "image", "images", "extend", "convert", "converter", "srcset", "sizes", "responsivedesign"
   ]
 }

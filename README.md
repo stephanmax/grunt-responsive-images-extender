@@ -68,7 +68,7 @@ grunt.initConfig({
   *Type:* `Array`<br>
   *Default:* none<br>
 
-  An array of objects containing the suffixes and sizes of our source set for non-responsive images (that is, images with an explicitly set `width` attribute in pixels). Use this array if you want to prove the browser images in different resolutions for use on high-DPR or retina devices.
+  An array of objects containing the suffixes and sizes of our source set for non-responsive images (that is, images with an explicitly set `width` attribute in pixels). Use this array if you want to provide the browser images in different resolutions for use on high-DPR or retina devices.
 
 ### Usage Examples
 
@@ -100,7 +100,11 @@ This configuration will turn this HTML code
 into this:
 
 ```html
-<img alt="A simple image" src="simple.jpg" srcset="simple-small.jpg 320w, simple-medium.jpg 640w, simple-large.jpg 1024w" title="A simple image">
+<img alt="A simple image" src="simple.jpg"
+  srcset="simple-small.jpg 320w,
+          simple-medium.jpg 640w,
+          simple-large.jpg 1024w"
+  title="A simple image">
 ```
 
 #### Custom Options
@@ -152,9 +156,19 @@ Above configuration would turn the following HTML chunk
 into this:
 
 ```html
-<img alt="A simple image" src="simple.jpg" srcset="simple-200.jpg 200w, simple-400.jpg 400w, simple-800.jpg 800w" sizes="(max-width: 30em) 100vw, (max-width: 50em) 50vw, calc(33vw - 100px)" title="A simple image">
+<img alt="A simple image" src="simple.jpg"
+  srcset="simple-200.jpg 200w,
+          simple-400.jpg 400w,
+          simple-800.jpg 800w"
+  sizes="(max-width: 30em) 100vw,
+         (max-width: 50em) 50vw,
+         calc(33vw - 100px)"
+  title="A simple image">
 
-<img src="non_responsive.png" srcset="non_responsive_x1.5.png 1.5x, non_responsive_x2.png 2x" width="150">
+<img src="non_responsive.png"
+  srcset="non_responsive_x1.5.png 1.5x,
+          non_responsive_x2.png 2x"
+  width="150">
 ```
 
 Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsive-images-extender/blob/master/Gruntfile.js) for more usage examples.

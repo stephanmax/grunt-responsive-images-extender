@@ -73,7 +73,7 @@ grunt.initConfig({
 ### Usage Examples
 
 #### Default Options
-Using the default options will make the task search for HTML `<img>` tags that have no `width` or `srcset` attribute already. Once found
+Using the default options will make the task search for HTML `<img>` tags that have no `width` or `srcset` attribute already.
 
 ```js
 grunt.initConfig({
@@ -188,6 +188,6 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
-*0.0.1*
+*0.1.0*
 
 * Initial commit and first version

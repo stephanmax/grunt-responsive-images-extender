@@ -35,7 +35,28 @@ module.exports = function(grunt) {
       },
       use_sizes: {
         options: {
-          useSizes: true
+          sizes: [{
+            selector: '.fig-hero img',
+            sizeList: [{
+              cond: 'max-width: 30em',
+              size: '100vw'
+            },{
+              cond: 'max-width: 50em',
+              size: '50vw'
+            },{
+              cond: 'default',
+              size: 'calc(33vw - 100px)'
+            }]
+          },{
+            selector: '[alt]',
+            sizeList: [{
+              cond: 'max-width: 20em',
+              size: '80vw'
+            },{
+              cond: 'default',
+              size: '90vw'
+            }]
+          }]
         },
         files: {
           'tmp/use_sizes': 'test/fixtures/testing'
@@ -57,7 +78,7 @@ module.exports = function(grunt) {
       },
       all: {
         options: {
-          useSizes: true,
+          ignore: ['.ignore-me'],
           srcset: [{
             suffix: '-200',
             value: '200w'
@@ -74,6 +95,19 @@ module.exports = function(grunt) {
           },{
             suffix: '_x2',
             value: '2x'
+          }],
+          sizes: [{
+            selector: '.fig-hero img',
+            sizeList: [{
+              cond: 'max-width: 30em',
+              size: '100vw'
+            },{
+              cond: 'max-width: 50em',
+              size: '50vw'
+            },{
+              cond: 'default',
+              size: 'calc(33vw - 100px)'
+            }]
           }]
         },
         files: {

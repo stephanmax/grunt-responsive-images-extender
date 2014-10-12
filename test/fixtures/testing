@@ -7,3 +7,9 @@
 <img src="never_process.jpg" srcset="" sizes="">
 
 <img src="never_process.jpg" width="150" srcset="">
+
+<figure class="fig-hero">
+  <img src="hero.png">
+</figure>
+
+<img src="ignored.jpg" class="ignore-me">

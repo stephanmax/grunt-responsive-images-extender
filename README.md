@@ -25,6 +25,8 @@ The responsive_images_extender task will scan your source files for HTML `<img>`
 
 It is therefore the perfect complement to the [responsive_images](https://github.com/andismith/grunt-responsive-images/) task that generates images with different resolutions. Used in combination you enable the browser to make an informed decision which image to download and render.
 
+This plugin uses [Cheerio](https://github.com/cheeriojs/cheerio) to traverse and modify the DOM.
+
 In your project's Gruntfile, add a section named `responsive_images_extender` to the data object passed into `grunt.initConfig()`.
 
 ```js
@@ -48,27 +50,52 @@ grunt.initConfig({
 
   An array of objects containing the suffixes and sizes of our source set. The default values match those of the [responsive_images](https://github.com/andismith/grunt-responsive-images/) task for smooth collaboration.
 
-* **options.useSizes**<br>
-  *Type:* `Boolean`<br>
-  *Default:* `false`<br>
-
-  Determines whether a `sizes` attribute is added. If set to `true`, the `options.sizes` array is used to build the attribute value.
-
 * **options.sizes**<br>
   *Type:* `Array`<br>
-  *Default:* `[{cond: 'max-width: 30em', size: '100vw'}, {cond: 'max-width: 50em', size: '50vw'}, {cond: 'default', size: 'calc(33vw - 100px)'}]`<br>
+  *Default:* none<br>
 
-  An array of objects containing the conditions and sizes of our size tableau. The default values are adopted from said [article by Yoav Weiss](https://dev.opera.com/articles/native-responsive-images/).
+  An array of objects containing the selectors (standard CSS selectors, like `.some-class`, `#an-id` or `img[src^="http://"]`) and their respective size tableau. An example could look like this:
+  
+  ```js
+  sizes: [{
+    selector: '#post-header',
+    sizeList: [{
+      cond: 'max-width: 30em',
+      size: '100vw'
+    },{
+      cond: 'max-width: 50em',
+      size: '50vw'
+    },{
+      cond: 'default',
+      size: 'calc(33vw - 100px)'
+    }]
+  },{
+    selector: '.hero img',
+    sizeList: [{
+      cond: 'max-width: 20em',
+      size: '80vw'
+    },{
+      cond: 'default',
+      size: '90vw'
+    }]
+  }]
+  ```
 
   If you want to set a default size value, make sure to set the condition to `default` and add the object at the end of the array. Otherwise the default value renders the following media conditions obsolete, since the browser walks through the list specified in `sizes` and looks for the first matching one.
 
-  This array is optional and only used when `options.useSizes` is set to `true`. Otherwise the browser assumes the size `100vw` for all images.
+  This array is optional and without specifying one the browser assumes the size `100vw` for all images.
 
 * **options.srcsetRetina**<br>
   *Type:* `Array`<br>
   *Default:* none<br>
 
   An array of objects containing the suffixes and sizes of our source set for non-responsive images (that is, images with an explicitly set `width` attribute in pixels). Use this array if you want to provide the browser images in different resolutions for use on high-DPR or retina devices.
+
+* **options.ignore**<br>
+  *Type:* `Array`<br>
+  *Default:* `[]`<br>
+
+  An array of selectors you want to ignore.
 
 ### Usage Examples
 
@@ -115,7 +142,6 @@ grunt.initConfig({
   responsive_images_extender: {
     complete: {
       options: {
-        useSizes: true,
         srcset: [{
           suffix: '-200',
           value: '200w'
@@ -132,6 +158,19 @@ grunt.initConfig({
         },{
           suffix: '_x2',
           value: '2x'
+        }],
+        sizes: [{
+          selector: '.article-img',
+          sizeList: [{
+            cond: 'max-width: 30em',
+            size: '100vw'
+          },{
+            cond: 'max-width: 50em',
+            size: '50vw'
+          },{
+            cond: 'default',
+            size: 'calc(33vw - 100px)'
+          }]
         }]
       },
       files: [{
@@ -148,7 +187,7 @@ grunt.initConfig({
 Above configuration would turn the following HTML chunk
 
 ```html
-<img alt="A simple image" src="simple.jpg" title="A simple image">
+<img alt="A simple image" src="simple.jpg" class="article-img">
 
 <img src="non_responsive.png" width="150">
 ```
@@ -156,19 +195,38 @@ Above configuration would turn the following HTML chunk
 into this:
 
 ```html
-<img alt="A simple image" src="simple.jpg"
+<img alt="A simple image" src="simple.jpg" class=".article-img"
      srcset="simple-200.jpg 200w,
              simple-400.jpg 400w,
              simple-800.jpg 800w"
      sizes="(max-width: 30em) 100vw,
             (max-width: 50em) 50vw,
-            calc(33vw - 100px)"
-     title="A simple image">
+            calc(33vw - 100px)">
 
-<img src="non_responsive.png"
+<img src="non_responsive.png" width="150"
      srcset="non_responsive_x1.5.png 1.5x,
-             non_responsive_x2.png 2x"
-     width="150">
+             non_responsive_x2.png 2x">
+```
+
+#### Ignoring images
+Sometimes you want to exclude certain images from the algorithm. You can achieve this with the `ignore` option:
+
+```js
+grunt.initConfig({
+  responsive_images_extender: {
+    ignoring: {
+      options: {
+        ignore: ['.icons', '#logo', 'figure img']
+      },
+      files: [{
+        expand: true,
+        src: ['**/*.{html,htm,php}'],
+        cwd: 'src/',
+        dest: 'build/'
+      }]
+    }
+  }
+});
 ```
 
 Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsive-images-extender/blob/master/Gruntfile.js) for more usage examples.
@@ -187,6 +245,11 @@ Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsiv
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+
+*1.0.0*
+
+* The `sizes` option allows users to specify multiple sizes for different selectors, for example for hero images, article images or icons.
+* Added the `ignore` option.
 
 *0.1.0*
 

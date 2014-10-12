@@ -4,24 +4,21 @@
  *
  * Copyright (c) 2014 Stephan Max
  * Licensed under the MIT license.
+ * 
+ * Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.
+ * 
+ * @author Stephan Max (http://twitter.com/smaxtastic)
+ * @version 0.1.0
  */
 
 'use strict';
 
 module.exports = function(grunt) {
+  
+  var cheerio = require('cheerio');
 
   var DEFAULT_OPTIONS = {
-    useSizes: false,
-    sizes: [{
-      cond: 'max-width: 30em',
-      size: '100vw'
-    },{
-      cond: 'max-width: 50em',
-      size: '50vw'
-    },{
-      cond: 'default',
-      size: 'calc(33vw - 100px)'
-    }],
+    ignore: [],
     srcset: [{
       suffix: '-small',
       value: '320w'
@@ -35,9 +32,9 @@ module.exports = function(grunt) {
   };
 
   grunt.registerMultiTask('responsive_images_extender', 'Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.', function() {
-    var numOfFiles = this.files.length;
-    var options = this.options(DEFAULT_OPTIONS);
-    var processedImgs = 0;
+    var numOfFiles = this.files.length,
+        options = this.options(DEFAULT_OPTIONS),
+        processedImages = 0;
     
     function buildAttributeList(optionList, buildAttribute) {
       var attributeList = [];
@@ -48,26 +45,12 @@ module.exports = function(grunt) {
     }
     
     function parseAndExtendImg(content, options) {
-      var numberOfMatches = 0;
-      var findImg = /(<img[^>]+src=")(.+)(\.[^"]+)("[^>]*>)/gi;
+      var $ = cheerio.load(content),
+          images = $('img:not(' + options.ignore.join(', ') + ')');
       
-      content = content.replace(findImg, function(match, front, filePath, fileExt, remainder) {
-        
-        var sources, sizes;
-        
-        function buildReplacement(srcset, sizes) {
-          var replacement = front + filePath + fileExt;
-          
-          if (typeof srcset !== 'undefined') {
-            replacement += '" srcset="' + srcset;
-          }
-      
-          if (typeof sizes !== 'undefined') {
-            replacement += '" sizes="' + sizes;
-          }
-        
-          return replacement + remainder;
-        }
+      images.each(function() {
+        var separatorPos, filePath, fileExt,
+            image = $(this);
         
         function buildSrc(option) {
           return filePath + option.suffix + fileExt + ' ' + option.value;
@@ -82,71 +65,65 @@ module.exports = function(grunt) {
           }
         }
         
-        var retinaReady = 'srcsetRetina' in options;
-        var isNonResponsive = match.indexOf('width') !== -1;
-        var hasSrcset = match.indexOf('srcset') !== -1;
-        var hasSizes = match.indexOf('sizes') !== -1;
+        var retinaReady = 'srcsetRetina' in options,
+            useSizes = 'sizes' in options,
+            isNonResponsive = image.attr('width') !== undefined,
+            hasSrcset = image.attr('srcset') !== undefined,
+            hasSizes = image.attr('sizes') !== undefined;
         
         // Don't process <img> tags unnecessarily
         if ((isNonResponsive && hasSrcset) ||
             (isNonResponsive && !hasSrcset && !retinaReady) ||
             (!isNonResponsive && hasSrcset && hasSizes) ||
-            (hasSrcset && !options.useSizes)) {
-          return match;
+            (hasSrcset && !useSizes)) {
+          return;
         }
         
+        filePath = image.attr('src');
+        if (filePath === undefined) {
+          grunt.log.verbose.error('Found an image without a source: ' + $.html(image));
+          return;
+        }
+        separatorPos = filePath.lastIndexOf('.');
+        fileExt = filePath.slice(separatorPos);
+        filePath = filePath.slice(0, separatorPos);
+        
         if (isNonResponsive) {
-          sources = buildAttributeList(options.srcsetRetina, buildSrc);
-          grunt.log.verbose.ok(
-            'Detected width attribute for ' + filePath + fileExt +
-            ' (not responsive, but retina-ready)'
-          );
+          image.attr('srcset', buildAttributeList(options.srcsetRetina, buildSrc));
+          grunt.log.verbose.ok('Detected width attribute for ' + filePath + fileExt + ' (not responsive, but retina-ready)');
         }
         else {
           if (!hasSrcset) {
-            sources = buildAttributeList(options.srcset, buildSrc);
-            grunt.log.verbose.ok(
-              'Extend ' + filePath + fileExt + ' with srcset attribute'
-            );
+            image.attr('srcset', buildAttributeList(options.srcset, buildSrc));
+            grunt.log.verbose.ok('Extend ' + filePath + fileExt + ' with srcset attribute');
           }
         
-          if (!hasSizes && options.useSizes) {
-            sizes = buildAttributeList(options.sizes, buildSize);
-            grunt.log.verbose.ok(
-              'Extend ' + filePath + fileExt + ' with sizes attribute'
-            );
+          if (!hasSizes && useSizes) {
+            options.sizes.some(function (s) {
+              if (image.is(s.selector)) {
+                image.attr('sizes', buildAttributeList(s.sizeList, buildSize));
+                grunt.log.verbose.ok('Extend ' + filePath + fileExt + ' with sizes attribute (selector: ' + s.selector + ')');
+                return true;
+              }
+            });
           }
         }
-        
-        numberOfMatches++;
-        
-        return buildReplacement(sources, sizes);
       });
       
-      return {content: content, count: numberOfMatches};
+      return {content: $.html(), count: images.length};
     }
     
-    grunt.log.writeln(
-      'Found ' +
-      numOfFiles.toString().cyan + ' ' +
-      grunt.util.pluralize(numOfFiles, 'file/files')
-    );
+    grunt.log.writeln('Found ' + numOfFiles.toString().cyan + ' ' + grunt.util.pluralize(numOfFiles, 'file/files'));
     
     this.files.forEach(function(f) {
       var content = grunt.file.read(f.src);
       var result = parseAndExtendImg(content, options);
       
       grunt.file.write(f.dest, result.content);
-      
-      processedImgs += result.count;
+      processedImages += result.count;
     });
     
-    grunt.log.writeln(
-      'Processed ' +
-      processedImgs.toString().cyan +
-      ' <img> ' +
-      grunt.util.pluralize(processedImgs, 'tag/tags')
-    );
+    grunt.log.writeln('Processed ' + processedImages.toString().cyan + ' <img> ' + grunt.util.pluralize(processedImages, 'tag/tags'));
   });
 
 };

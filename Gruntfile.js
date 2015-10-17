@@ -28,9 +28,12 @@ module.exports = function(grunt) {
 
     // Four example configurations to be run (and then tested)
     responsive_images_extender: {
+      options: {
+        baseDir: 'test'
+      },
       default_options: {
         files: {
-          'tmp/default_options': 'test/fixtures/testing'
+          'tmp/default_options.html': 'test/fixtures/testing.html'
         }
       },
       use_sizes: {
@@ -59,7 +62,7 @@ module.exports = function(grunt) {
           }]
         },
         files: {
-          'tmp/use_sizes': 'test/fixtures/testing'
+          'tmp/use_sizes.html': 'test/fixtures/testing.html'
         }
       },
       retina: {
@@ -73,7 +76,7 @@ module.exports = function(grunt) {
           }]
         },
         files: {
-          'tmp/retina': 'test/fixtures/testing'
+          'tmp/retina.html': 'test/fixtures/testing.html'
         }
       },
       all: {
@@ -111,7 +114,7 @@ module.exports = function(grunt) {
           }]
         },
         files: {
-          'tmp/all': 'test/fixtures/testing'
+          'tmp/all.html': 'test/fixtures/testing.html'
         }
       }
     },

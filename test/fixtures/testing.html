@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Testing | grunt-responsive-images-extender</title>
+    <style>
+      img {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <img alt="A simple image" src="/assets/image.png" title="A simple image">
+
+    <img src="/assets/image.png" srcset="">
+
+    <img src="/assets/image.png" width="150">
+
+    <img src="/assets/image.png" srcset="" sizes="">
+
+    <img src="/assets/image.png" width="150" srcset="">
+
+    <figure class="fig-hero">
+      <img src="../assets/image.png">
+    </figure>
+
+    <img src="/assets/image.png" class="ignore-me">
+  </body>
+</html>

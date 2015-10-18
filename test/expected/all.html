@@ -10,20 +10,26 @@
     </style>
   </head>
   <body>
-    <img alt="A simple image" src="simple.jpg" title="A simple image" srcset="simple-200.jpg 200w, simple-400.jpg 400w, simple-800.jpg 800w">
+    <img alt="A simple image" src="/assets/image-thumbnail.png" title="An über-simple image" srcset="/assets/image-1440.png 1440w, /assets/image-2x.png 1920w, /assets/image-thumbnail.png 240w, /assets/image.png 960w">
 
-    <img src="srcset_already.png" srcset="">
+    <img alt="Sizes please" src="/assets/image.png" srcset="">
 
-    <img src="non_responsive.png" width="150" srcset="non_responsive_x1.5.png 1.5x, non_responsive_x2.png 2x">
+    <img src="/assets/image-thumbnail.png" width="480" srcset="/assets/image-1440.png 3x, /assets/image-2x.png 4x, /assets/image-thumbnail.png 0.5x, /assets/image.png 2x">
 
-    <img src="never_process.jpg" srcset="" sizes="">
+    <img src="/assets/image-thumbnail.png" width="250" srcset="/assets/image-1440.png 5.76x, /assets/image-2x.png 7.68x, /assets/image-thumbnail.png 0.96x, /assets/image.png 3.84x">
 
-    <img src="never_process.jpg" width="150" srcset="">
+    <img src="/assets/image.png" srcset="" sizes="">
+
+    <img src="/assets/image.png" width="150" srcset="">
 
     <figure class="fig-hero">
-      <img src="hero.png" srcset="hero-200.png 200w, hero-400.png 400w, hero-800.png 800w" sizes="(max-width: 30em) 100vw, (max-width: 50em) 50vw, calc(33vw - 100px)">
+      <img src="../assets/image-thumbnail.png" srcset="../assets/image-1440.png 1440w, ../assets/image-2x.png 1920w, ../assets/image-thumbnail.png 240w, ../assets/image.png 960w" sizes="(max-width: 30em) 100vw, (max-width: 50em) 50vw, calc(33vw - 100px)">
     </figure>
 
-    <img src="ignored.jpg" class="ignore-me">
+    <img src="/assets/image.png" class="ignore-me">
+
+    <img src="/assets/not_to_be_found.png">
+
+    <img src="/assets/do_nothing.png">
   </body>
 </html>

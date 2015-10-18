@@ -23,7 +23,7 @@ module.exports = function(grunt) {
     },
 
     clean: {
-      tests: ['tmp']
+      tests: ['test/tmp']
     },
 
     // Four example configurations to be run (and then tested)
@@ -33,7 +33,7 @@ module.exports = function(grunt) {
       },
       default_options: {
         files: {
-          'tmp/default_options.html': 'test/fixtures/testing.html'
+          'test/tmp/default_options.html': 'test/fixtures/testing.html'
         }
       },
       use_sizes: {
@@ -62,43 +62,22 @@ module.exports = function(grunt) {
           }]
         },
         files: {
-          'tmp/use_sizes.html': 'test/fixtures/testing.html'
+          'test/tmp/use_sizes.html': 'test/fixtures/testing.html'
         }
       },
-      retina: {
+      polyfill_lazyloading: {
         options: {
-          srcsetRetina: [{
-            suffix: '_x1.5',
-            value: '1.5x'
-          },{
-            suffix: '_x2',
-            value: '2x'
-          }]
+          srcsetAttributeName: 'data-srcset',
+          srcAttribute: 'none'
         },
         files: {
-          'tmp/retina.html': 'test/fixtures/testing.html'
+          'test/tmp/polyfill_lazyloading.html': 'test/fixtures/testing.html'
         }
       },
       all: {
         options: {
           ignore: ['.ignore-me'],
-          srcset: [{
-            suffix: '-200',
-            value: '200w'
-          },{
-            suffix: '-400',
-            value: '400w'
-          },{
-            suffix: '-800',
-            value: '800w'
-          }],
-          srcsetRetina: [{
-            suffix: '_x1.5',
-            value: '1.5x'
-          },{
-            suffix: '_x2',
-            value: '2x'
-          }],
+          srcAttribute: 'smallest',
           sizes: [{
             selector: '.fig-hero img',
             sizeList: [{
@@ -114,7 +93,7 @@ module.exports = function(grunt) {
           }]
         },
         files: {
-          'tmp/all.html': 'test/fixtures/testing.html'
+          'test/tmp/all.html': 'test/fixtures/testing.html'
         }
       }
     },
@@ -134,5 +113,4 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['clean', 'responsive_images_extender', 'nodeunit']);
 
   grunt.registerTask('default', ['jshint', 'test']);
-
 };

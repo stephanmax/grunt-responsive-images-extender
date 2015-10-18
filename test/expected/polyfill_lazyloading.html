@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Testing | grunt-responsive-images-extender</title>
+    <style>
+      img {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <img alt="A simple image" title="An über-simple image" data-srcset="/assets/image-1440.png 1440w, /assets/image-2x.png 1920w, /assets/image-thumbnail.png 240w, /assets/image.png 960w">
+
+    <img alt="Sizes please" data-srcset="/assets/image-1440.png 1440w, /assets/image-2x.png 1920w, /assets/image-thumbnail.png 240w, /assets/image.png 960w">
+
+    <img width="480" data-srcset="/assets/image-1440.png 3x, /assets/image-2x.png 4x, /assets/image-thumbnail.png 0.5x, /assets/image.png 2x">
+
+    <img width="250" data-srcset="/assets/image-1440.png 5.76x, /assets/image-2x.png 7.68x, /assets/image-thumbnail.png 0.96x, /assets/image.png 3.84x">
+
+    <img sizes="" data-srcset="/assets/image-1440.png 1440w, /assets/image-2x.png 1920w, /assets/image-thumbnail.png 240w, /assets/image.png 960w">
+
+    <img width="150" data-srcset="/assets/image-1440.png 9.6x, /assets/image-2x.png 12.8x, /assets/image-thumbnail.png 1.6x, /assets/image.png 6.4x">
+
+    <figure class="fig-hero">
+      <img data-srcset="../assets/image-1440.png 1440w, ../assets/image-2x.png 1920w, ../assets/image-thumbnail.png 240w, ../assets/image.png 960w">
+    </figure>
+
+    <img class="ignore-me" data-srcset="/assets/image-1440.png 1440w, /assets/image-2x.png 1920w, /assets/image-thumbnail.png 240w, /assets/image.png 960w">
+
+    <img src="/assets/not_to_be_found.png">
+
+    <img src="/assets/do_nothing.png">
+  </body>
+</html>

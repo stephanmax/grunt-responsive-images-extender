@@ -22,7 +22,8 @@ module.exports = function(grunt) {
   var DEFAULT_OPTIONS = {
     separator: '-',
     baseDir: '',
-    ignore: []
+    ignore: [],
+    srcsetAttributeName: 'srcset'
   };
 
   grunt.registerMultiTask('responsive_images_extender', 'Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.', function() {
@@ -31,8 +32,10 @@ module.exports = function(grunt) {
         processedImages = 0;
 
     var parseAndExtendImg = function(content, filepath) {
-      var $ = cheerio.load(content),
-          images = $('img:not(' + options.ignore.join(', ') + ')');
+      var $ = cheerio.load(content, {
+        decodeEntities: false
+      }),
+      images = $('img:not(' + options.ignore.join(', ') + ')');
 
       images.each(function() {
         var noramlizeImagePath = function(src) {
@@ -56,76 +59,116 @@ module.exports = function(grunt) {
           });
         };
 
-        var buildSrcset = function(imageNames) {
-          var srcset = [];
+        var buildSrcMap = function(imageNames) {
+          var srcMap = {};
           imageNames.forEach(function(imageName) {
-            srcset.push(path.join(path.dirname(imageSrc), imageName) + ' ' + sizeOf(path.join(imageLoc.dir, imageName)).width + 'w');
+            srcMap[imageName] = sizeOf(path.join(imageLoc.dir, imageName)).width;
           });
+          return srcMap;
+        };
+
+        var buildSrcset = function(srcMap) {
+          var srcset = [];
+
+          for (var img in srcMap) {
+            srcset.push(path.join(path.dirname(imageSrc), img) + ' ' + srcMap[img] + 'w');
+          }
+
           return srcset.join(', ');
         };
 
-        var separatorPos, filePath, fileExt;
-        var image = $(this), imageSrc = image.attr('src'), imageLoc = noramlizeImagePath(imageSrc), allImageNames = findRelatedImages(imageLoc), srcset = buildSrcset(allImageNames);
+        var buildSrcsetRetina = function(srcMap, width) {
+          var srcset = [];
 
-        image.attr('srcset', srcset);
+          for (var img in srcMap) {
+            srcset.push(path.join(path.dirname(imageSrc), img) + ' ' + Math.round(srcMap[img] / width * 100) / 100 + 'x');
+          }
 
-      //   grunt.log.ok(JSON.stringify(srcMap));
-      //
-      //   function buildSrc(option) {
-      //     return filePath + option.suffix + fileExt + ' ' + option.value;
-      //   }
-      //
-      //   function buildSize(option) {
-      //     if (option.cond === 'default') {
-      //       return option.size;
-      //     }
-      //     else {
-      //       return '(' + option.cond + ') ' + option.size;
-      //     }
-      //   }
-      //
-      //   var retinaReady = 'srcsetRetina' in options,
-      //       useSizes = 'sizes' in options,
-      //       isNonResponsive = image.attr('width') !== undefined,
-      //       hasSrcset = image.attr('srcset') !== undefined,
-      //       hasSizes = image.attr('sizes') !== undefined;
-      //
-      //   // Don't process <img> tags unnecessarily
-      //   if ((isNonResponsive && hasSrcset) ||
-      //       (isNonResponsive && !hasSrcset && !retinaReady) ||
-      //       (!isNonResponsive && hasSrcset && hasSizes) ||
-      //       (hasSrcset && !useSizes)) {
-      //     return;
-      //   }
-      //
-      //   if (imageSrc === undefined) {
-      //     grunt.log.verbose.error('Found an image without a source: ' + $.html(image));
-      //     return;
-      //   }
-      //   separatorPos = filePath.lastIndexOf('.');
-      //   fileExt = filePath.slice(separatorPos);
-      //   filePath = filePath.slice(0, separatorPos);
-      //
-      //   if (isNonResponsive) {
-      //     image.attr('srcset', buildAttributeList(options.srcsetRetina, buildSrc));
-      //     grunt.log.verbose.ok('Detected width attribute for ' + filePath + fileExt + ' (not responsive, but retina-ready)');
-      //   }
-      //   else {
-      //     if (!hasSrcset) {
-      //       image.attr('srcset', buildAttributeList(options.srcset, buildSrc));
-      //       grunt.log.verbose.ok('Extend ' + filePath + fileExt + ' with srcset attribute');
-      //     }
-      //
-      //     if (!hasSizes && useSizes) {
-      //       options.sizes.some(function (s) {
-      //         if (image.is(s.selector)) {
-      //           image.attr('sizes', buildAttributeList(s.sizeList, buildSize));
-      //           grunt.log.verbose.ok('Extend ' + filePath + fileExt + ' with sizes attribute (selector: ' + s.selector + ')');
-      //           return true;
-      //         }
-      //       });
-      //     }
-      //   }
+          return srcset.join(', ');
+        };
+
+        var buildSizes = function(optionList) {
+          var attributeList = [];
+          optionList.forEach(function(o) {
+            attributeList.push(
+              o.cond === 'default' ? o.size : '(' + o.cond + ') ' + o.size
+            );
+          });
+          return attributeList.join(', ');
+        };
+
+        var setSrcAttribute = function() {
+          switch (options.srcAttribute) {
+            case 'none':
+              image.attr('src', null);
+              break;
+            case 'smallest':
+              var smallestImage = Object.keys(srcMap).map(function(k) {
+                return [k, srcMap[k]];
+              }).reduce(function(a, b) {
+                return b[1] < a[1] ? b : a;
+              });
+              image.attr('src', path.join(path.dirname(imageSrc), smallestImage[0]));
+              break;
+            default:
+          }
+        };
+
+        var image, imageWidth, imageSrc, imageLoc, allImageNames, srcMap;
+
+        image = $(this);
+        imageWidth = image.attr('width');
+        imageSrc = image.attr('src');
+        imageLoc = noramlizeImagePath(imageSrc);
+        allImageNames = findRelatedImages(imageLoc);
+
+        switch (allImageNames.length) {
+          case 0:
+            grunt.verbose.error('No file found for ' + imageSrc.cyan);
+            return;
+          case 1:
+            grunt.verbose.error('Only one file found for ' + imageSrc.cyan);
+            return;
+          default:
+        }
+
+        grunt.verbose.ok('Found ' + allImageNames.length.toString().cyan + ' files for ' + imageSrc.cyan + ': ' + allImageNames);
+
+        var useSizes = 'sizes' in options,
+            isNonResponsive = image.attr('width') !== undefined,
+            hasSrcset = image.attr(options.srcsetAttributeName) !== undefined,
+            hasSizes = image.attr('sizes') !== undefined;
+
+        if ((isNonResponsive && hasSrcset) ||
+            (!isNonResponsive && hasSrcset && hasSizes) ||
+            (hasSrcset && !useSizes)) {
+          return;
+        }
+
+        srcMap = buildSrcMap(allImageNames);
+
+        if (isNonResponsive && imageWidth > 0) {
+          image.attr(options.srcsetAttributeName, buildSrcsetRetina(srcMap, imageWidth));
+          if (options.srcsetAttributeName !== 'srcset') { image.attr('srcset', null); }
+          setSrcAttribute();
+        }
+        else {
+          if (!hasSrcset) {
+            image.attr(options.srcsetAttributeName, buildSrcset(srcMap));
+            if (options.srcsetAttributeName !== 'srcset') { image.attr('srcset', null); }
+            setSrcAttribute();
+          }
+
+          if (!hasSizes && useSizes) {
+            options.sizes.some(function (s) {
+              if (image.is(s.selector)) {
+                image.attr('sizes', buildSizes(s.sizeList));
+                setSrcAttribute();
+                return true;
+              }
+            });
+          }
+        }
       });
 
       return {content: $.html(), count: images.length};

@@ -27,18 +27,17 @@ module.exports = function(grunt) {
   };
 
   grunt.registerMultiTask('responsive_images_extender', 'Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.', function() {
-    var numOfFiles = this.files.length,
-        options = this.options(DEFAULT_OPTIONS),
-        processedImages = 0;
+    var numOfFiles = this.files.length;
+    var options = this.options(DEFAULT_OPTIONS);
+    var imgCount = 0;
 
-    var parseAndExtendImg = function(content, filepath) {
-      var $ = cheerio.load(content, {
-        decodeEntities: false
-      }),
-      images = $('img:not(' + options.ignore.join(', ') + ')');
+    var parseAndExtendImg = function(filepath) {
+      var content = grunt.file.read(filepath);
+      var $ = cheerio.load(content, {decodeEntities: false});
+      var imgElems = $('img:not(' + options.ignore.join(', ') + ')');
 
-      images.each(function() {
-        var noramlizeImagePath = function(src) {
+      imgElems.each(function() {
+        var normalizeImagePath = function(src) {
           var pathPrefix;
 
           if (path.isAbsolute(src)) {
@@ -51,56 +50,63 @@ module.exports = function(grunt) {
           return path.parse(path.join(pathPrefix, src));
         };
 
-        var findRelatedImages = function(location) {
-          var files = fs.readdirSync(location.dir), re = new RegExp(location.name + '(' + options.separator + '[^' + options.separator + ']*)?' + location.ext + '$');
+        var findMatchingImages = function(path) {
+          var files = fs.readdirSync(path.dir);
+          var imageMatch = new RegExp(path.name + '(' + options.separator + '[^' + options.separator + ']*)?' + path.ext + '$');
 
           return files.filter(function(filename) {
-            return re.test(filename);
+            return imageMatch.test(filename);
           });
         };
 
         var buildSrcMap = function(imageNames) {
           var srcMap = {};
+
           imageNames.forEach(function(imageName) {
-            srcMap[imageName] = sizeOf(path.join(imageLoc.dir, imageName)).width;
+            srcMap[imageName] = sizeOf(path.join(imagePath.dir, imageName)).width;
           });
+
           return srcMap;
         };
 
-        var buildSrcset = function(srcMap) {
+        var buildSrcset = function(srcMap, width) {
           var srcset = [];
+          var candidate;
 
           for (var img in srcMap) {
-            srcset.push(path.join(path.dirname(imageSrc), img) + ' ' + srcMap[img] + 'w');
+            candidate = path.join(path.dirname(imgSrc), img);
+            if (width !== undefined) {
+              candidate += ' ' + Math.round(srcMap[img] / width * 100) / 100 + 'x';
+            }
+            else {
+              candidate += ' ' + srcMap[img] + 'w';
+            }
+            srcset.push(candidate);
+          }
+
+          if (options.srcsetAttributeName !== DEFAULT_OPTIONS.srcsetAttributeName) {
+            imgElem.attr('srcset', null);
           }
 
           return srcset.join(', ');
         };
 
-        var buildSrcsetRetina = function(srcMap, width) {
-          var srcset = [];
+        var buildSizes = function(sizeList) {
+          var sizes = [];
 
-          for (var img in srcMap) {
-            srcset.push(path.join(path.dirname(imageSrc), img) + ' ' + Math.round(srcMap[img] / width * 100) / 100 + 'x');
-          }
-
-          return srcset.join(', ');
-        };
-
-        var buildSizes = function(optionList) {
-          var attributeList = [];
-          optionList.forEach(function(o) {
-            attributeList.push(
-              o.cond === 'default' ? o.size : '(' + o.cond + ') ' + o.size
+          sizeList.forEach(function(s) {
+            sizes.push(
+              s.cond === 'default' ? s.size : '(' + s.cond + ') ' + s.size
             );
           });
-          return attributeList.join(', ');
+
+          return sizes.join(', ');
         };
 
         var setSrcAttribute = function() {
           switch (options.srcAttribute) {
             case 'none':
-              image.attr('src', null);
+              imgElem.attr('src', null);
               break;
             case 'smallest':
               var smallestImage = Object.keys(srcMap).map(function(k) {
@@ -108,61 +114,59 @@ module.exports = function(grunt) {
               }).reduce(function(a, b) {
                 return b[1] < a[1] ? b : a;
               });
-              image.attr('src', path.join(path.dirname(imageSrc), smallestImage[0]));
+              imgElem.attr('src', path.join(path.dirname(imgSrc), smallestImage[0]));
               break;
             default:
           }
         };
 
-        var image, imageWidth, imageSrc, imageLoc, allImageNames, srcMap;
+        var imgElem = $(this);
+        var imgWidth = imgElem.attr('width');
+        var imgSrc = imgElem.attr('src');
 
-        image = $(this);
-        imageWidth = image.attr('width');
-        imageSrc = image.attr('src');
-        imageLoc = noramlizeImagePath(imageSrc);
-        allImageNames = findRelatedImages(imageLoc);
+        var useSizes = 'sizes' in options;
+        var isResponsive = imgWidth === undefined;
+        var hasSrcset = imgElem.attr(options.srcsetAttributeName) !== undefined;
+        var hasSizes = imgElem.attr('sizes') !== undefined;
 
-        switch (allImageNames.length) {
-          case 0:
-            grunt.verbose.error('No file found for ' + imageSrc.cyan);
-            return;
-          case 1:
-            grunt.verbose.error('Only one file found for ' + imageSrc.cyan);
-            return;
-          default:
-        }
+        var imagePath;
+        var imageMatches;
+        var srcMap;
 
-        grunt.verbose.ok('Found ' + allImageNames.length.toString().cyan + ' files for ' + imageSrc.cyan + ': ' + allImageNames);
-
-        var useSizes = 'sizes' in options,
-            isNonResponsive = image.attr('width') !== undefined,
-            hasSrcset = image.attr(options.srcsetAttributeName) !== undefined,
-            hasSizes = image.attr('sizes') !== undefined;
-
-        if ((isNonResponsive && hasSrcset) ||
-            (!isNonResponsive && hasSrcset && hasSizes) ||
-            (hasSrcset && !useSizes)) {
+        if (hasSrcset && (!isResponsive || (isResponsive && hasSizes) || !useSizes)) {
           return;
         }
 
-        srcMap = buildSrcMap(allImageNames);
+        imagePath = normalizeImagePath(imgSrc);
+        imageMatches = findMatchingImages(imagePath);
 
-        if (isNonResponsive && imageWidth > 0) {
-          image.attr(options.srcsetAttributeName, buildSrcsetRetina(srcMap, imageWidth));
-          if (options.srcsetAttributeName !== 'srcset') { image.attr('srcset', null); }
+        switch (imageMatches.length) {
+          case 0:
+            grunt.verbose.error('Found no file for ' + imgSrc.cyan);
+            return;
+          case 1:
+            grunt.verbose.error('Found only one file for ' + imgSrc.cyan);
+            return;
+          default:
+            grunt.verbose.ok('Found ' + imageMatches.length.cyan + ' files for ' + imgSrc.cyan + ': ' + imageMatches);
+        }
+
+        srcMap = buildSrcMap(imageMatches);
+
+        if (!isResponsive && imgWidth > 0) {
+          imgElem.attr(options.srcsetAttributeName, buildSrcset(srcMap, imgWidth));
           setSrcAttribute();
         }
         else {
           if (!hasSrcset) {
-            image.attr(options.srcsetAttributeName, buildSrcset(srcMap));
-            if (options.srcsetAttributeName !== 'srcset') { image.attr('srcset', null); }
+            imgElem.attr(options.srcsetAttributeName, buildSrcset(srcMap));
             setSrcAttribute();
           }
 
           if (!hasSizes && useSizes) {
             options.sizes.some(function (s) {
-              if (image.is(s.selector)) {
-                image.attr('sizes', buildSizes(s.sizeList));
+              if (imgElem.is(s.selector)) {
+                imgElem.attr('sizes', buildSizes(s.sizeList));
                 setSrcAttribute();
                 return true;
               }
@@ -171,22 +175,24 @@ module.exports = function(grunt) {
         }
       });
 
-      return {content: $.html(), count: images.length};
+      return {content: $.html(), count: imgElems.length};
     };
 
     this.files.forEach(function(f) {
+      var result;
+
       if (f.src.length === 0) {
         grunt.log.error('No files to process!');
         return;
       }
-      var content = grunt.file.read(f.src);
-      var result = parseAndExtendImg(content, f.src.toString());
+
+      result = parseAndExtendImg(f.src);
 
       grunt.file.write(f.dest, result.content);
-      processedImages += result.count;
+      imgCount += result.count;
     });
 
-    grunt.log.ok('Processed ' + processedImages.toString().cyan + ' <img> ' + grunt.util.pluralize(processedImages, 'tag/tags'));
+    grunt.log.ok('Processed ' + imgCount.toString().cyan + ' <img> ' + grunt.util.pluralize(imgCount, 'tag/tags'));
   });
 
 };

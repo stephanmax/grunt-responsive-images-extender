@@ -85,7 +85,7 @@ module.exports = function(grunt) {
           }
 
           if (options.srcsetAttributeName !== DEFAULT_OPTIONS.srcsetAttributeName) {
-            imgElem.attr('srcset', null);
+            imgElem.attr(DEFAULT_OPTIONS.srcsetAttributeName, null);
           }
 
           return srcset.join(', ');
@@ -95,8 +95,12 @@ module.exports = function(grunt) {
           var sizes = [];
 
           sizeList.forEach(function(s) {
+            var actualSize = srcMap[imagePath.name + imagePath.ext] + 'px';
+            var cond = s.cond.replace('%size%', actualSize);
+            var size = s.size.replace('%size%', actualSize);
+
             sizes.push(
-              s.cond === 'default' ? s.size : '(' + s.cond + ') ' + s.size
+              cond === 'default' ? size : '(' + cond + ') ' + size
             );
           });
 

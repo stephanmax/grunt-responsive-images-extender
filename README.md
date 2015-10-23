@@ -25,7 +25,7 @@ The responsive_images_extender task will scan your source files for HTML `<img>`
 
 It is therefore the perfect complement to the [responsive_images](https://github.com/andismith/grunt-responsive-images/) task that generates images with different resolutions. Used in combination you enable the browser to make an informed decision which image to download and render.
 
-This plugin uses [Cheerio](https://github.com/cheeriojs/cheerio) to traverse and modify the DOM.
+This plugin uses [Cheerio](https://github.com/cheeriojs/cheerio) to traverse/modify the DOM and [image-size](https://github.com/netroy/image-size) to read the image sizes straight from the image files. You **don't have to configure** the `srcset` or `srcsetRetina` option anymore, since they get built automatically based on the present image files.
 
 In your project's Gruntfile, add a section named `responsive_images_extender` to the data object passed into `grunt.initConfig()`.
 
@@ -44,18 +44,24 @@ grunt.initConfig({
 
 ### Options
 
-* **options.srcset**<br>
-  *Type:* `Array`<br>
-  *Default:* `[{suffix: '-small', value: '320w'}, {suffix: '-medium', value: '640w'}, {suffix: '-large', value: '1024w'}]`<br>
+* **options.separator**<br>
+  *Type:* `String`<br>
+  *Default:* `'-'`<br>
 
-  An array of objects containing the suffixes and sizes of our source set. The default values match those of the [responsive_images](https://github.com/andismith/grunt-responsive-images/) task for smooth collaboration.
+  The separator used for naming your resized images.
+
+* **options.baseDir**<br>
+  *Type:* `String`<br>
+  *Default:* `''`<br>
+
+  The base directory of the site you are serving. This enables Grunt to access your image files when you use absolute paths to reference them in your HTML code. Ignore this option if you are using relative paths only.
 
 * **options.sizes**<br>
   *Type:* `Array`<br>
   *Default:* none<br>
 
   An array of objects containing the selectors (standard CSS selectors, like `.some-class`, `#an-id` or `img[src^="http://"]`) and their respective size tableau. An example could look like this:
-  
+
   ```js
   sizes: [{
     selector: '#post-header',
@@ -85,22 +91,33 @@ grunt.initConfig({
 
   This array is optional and without specifying one the browser assumes the size `100vw` for all images.
 
-* **options.srcsetRetina**<br>
-  *Type:* `Array`<br>
-  *Default:* none<br>
-
-  An array of objects containing the suffixes and sizes of our source set for non-responsive images (that is, images with an explicitly set `width` attribute in pixels). Use this array if you want to provide the browser images in different resolutions for use on high-DPR or retina devices.
+  You can use the placeholder `%size%` which gets replaced by the actual width of the current image (this can come in handy to specify a maximum width with a breakpoint, e.g. `(min-width: 400px) 400px`).
 
 * **options.ignore**<br>
   *Type:* `Array`<br>
   *Default:* `[]`<br>
 
-  An array of selectors you want to ignore.
+  An array of standard CSS selectors of image tags you want to ignore.
+
+* **options.srcsetAttributeName**<br>
+  *Type:* `String`<br>
+  *Default:* `'srcset'`<br>
+
+  Overwrite the name of the `srcset` attribute with something else, for example some lazy loaders require `data-srcset`.
+
+* **options.srcAttribute**<br>
+  *Type:* `String`<br>
+  *Default:* none<br>
+
+  Set the `src` attribute to:
+
+  - `'none'`: Delete the `src` attribute which is necessary to avoid duplicate downloads when you are using a polyfill. *Please note that this is not valid HTML, though.*
+  - `'smallest'`: Set the `src` fallback to the smallest image.
+  - Do not use this option to leave `src` untouched.
 
 ### Usage Examples
 
 #### Default Options
-Using the default options will make the task search for HTML `<img>` tags that have no `width` or `srcset` attribute already.
 
 ```js
 grunt.initConfig({
@@ -124,41 +141,28 @@ This configuration will turn this HTML code
 <img alt="A simple image" src="simple.jpg" title="A simple image">
 ```
 
-into this:
+into this (the image sizes are arbitrarily chosen and read directly from the files):
 
 ```html
 <img alt="A simple image" src="simple.jpg"
      srcset="simple-small.jpg 320w,
              simple-medium.jpg 640w,
-             simple-large.jpg 1024w"
+             simple-large.jpg 1024w,
+             simple.jpg 2000w"
      title="A simple image">
 ```
 
 #### Custom Options
-Use the options to refine your tasks, e.g. to add a `sizes` attribute or a set of sources for retina-ready fixed-width images.
+Use the options to refine your tasks, e.g. to add a `sizes` attribute, a different separator, or a different `src` value. `<img>` tags with a `width` attribute automatically trigger the use of `x` descriptors.
 
 ```js
 grunt.initConfig({
   responsive_images_extender: {
     complete: {
       options: {
-        srcset: [{
-          suffix: '-200',
-          value: '200w'
-        },{
-          suffix: '-400',
-          value: '400w'
-        },{
-          suffix: '-800',
-          value: '800w'
-        }],
-        srcsetRetina: [{
-          suffix: '_x1.5',
-          value: '1.5x'
-        },{
-          suffix: '_x2',
-          value: '2x'
-        }],
+        separator: '@',
+        baseDir: 'build',
+        srcAttribute: 'smallest',
         sizes: [{
           selector: '.article-img',
           sizeList: [{
@@ -189,23 +193,26 @@ Above configuration would turn the following HTML chunk
 ```html
 <img alt="A simple image" src="simple.jpg" class="article-img">
 
-<img src="non_responsive.png" width="150">
+<img src="simple.jpg" width="200">
 ```
 
 into this:
 
 ```html
-<img alt="A simple image" src="simple.jpg" class=".article-img"
-     srcset="simple-200.jpg 200w,
-             simple-400.jpg 400w,
-             simple-800.jpg 800w"
+<img alt="A simple image" src="simple@200.jpg" class=".article-img"
+     srcset="simple@200.jpg 200w,
+             simple@400.jpg 400w,
+             simple@800.jpg 800w,
+             simple.jpg 1600w"
      sizes="(max-width: 30em) 100vw,
             (max-width: 50em) 50vw,
             calc(33vw - 100px)">
 
-<img src="non_responsive.png" width="150"
-     srcset="non_responsive_x1.5.png 1.5x,
-             non_responsive_x2.png 2x">
+<img src="simple@200.jpg" width="200"
+     srcset="simple@200.jpg 1x,
+             simple@400.jpg 2x,
+             simple@800.jpg 4x,
+             simple.jpg 8x">
 ```
 
 #### Ignoring images
@@ -234,7 +241,7 @@ Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsiv
 ## Related Work
 
 * **grunt-responsive-images**
-  
+
   Use this [task](https://github.com/andismith/grunt-responsive-images/) to generate images with different sizes.
 
 * **grunt-responsive-images-converter**
@@ -245,6 +252,14 @@ Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsiv
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+
+*2.0.0*
+
+* `srcset` is built automatically based on the image sizes read directly from the files. `x` descriptors are triggered for images with `width` attribute.
+* Removed `srcset` and `srcsetRetina` option.
+* Added the `srcAttribute` option to delete `src` for polyfills or set the smallest image as a fallback.
+* Added the `srcsetAttributeName` option to use for example `data-srcset` for lazy loaders.
+* Added the `%size%` placeholder to use the image size inside the `sizes` rules
 
 *1.0.0*
 

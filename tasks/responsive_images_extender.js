@@ -74,7 +74,7 @@ module.exports = function(grunt) {
           var candidate;
 
           for (var img in srcMap) {
-            candidate = path.join(path.dirname(imgSrc), img);
+            candidate = path.posix.join(path.dirname(imgSrc), img);
             if (width !== undefined) {
               candidate += ' ' + Math.round(srcMap[img] / width * 100) / 100 + 'x';
             }
@@ -118,7 +118,7 @@ module.exports = function(grunt) {
               }).reduce(function(a, b) {
                 return b[1] < a[1] ? b : a;
               });
-              imgElem.attr('src', path.join(path.dirname(imgSrc), smallestImage[0]));
+              imgElem.attr('src', path.posix.join(path.dirname(imgSrc), smallestImage[0]));
               break;
             default:
           }

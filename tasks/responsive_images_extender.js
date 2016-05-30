@@ -31,7 +31,7 @@ module.exports = function(grunt) {
     var options = this.options(DEFAULT_OPTIONS);
     var imgCount = 0;
 
-    var parseAndExtendImg = function(filepath) {
+    var parseAndExtendImg = function(filepath, pathout) {
       var content = grunt.file.read(filepath);
       var $ = cheerio.load(content, {decodeEntities: false});
       var imgElems = $('img:not(' + options.ignore.join(', ') + ')');
@@ -43,8 +43,8 @@ module.exports = function(grunt) {
           if (path.isAbsolute(src)) {
             pathPrefix = options.baseDir;
           }
-          else {
-            pathPrefix = path.dirname(filepath);
+          else { 
+            pathPrefix = path.dirname(pathout);
           }
 
           return path.parse(path.join(pathPrefix, src));
@@ -149,10 +149,10 @@ module.exports = function(grunt) {
             grunt.verbose.error('Found no file for ' + imgSrc.cyan);
             return;
           case 1:
-            grunt.verbose.error('Found only one file for ' + imgSrc.cyan);
+            grunt.verbose.error('Found only one file for ' + imgSrc.cyan + " (" + imagePath.dir + ")");
             return;
           default:
-            grunt.verbose.ok('Found ' + imageMatches.length.cyan + ' files for ' + imgSrc.cyan + ': ' + imageMatches);
+            grunt.verbose.ok('Found ' + imageMatches.length + ' files for ' + imgSrc.cyan + ': ' + imageMatches);
         }
 
         srcMap = buildSrcMap(imageMatches);
@@ -190,7 +190,7 @@ module.exports = function(grunt) {
         return;
       }
 
-      result = parseAndExtendImg(f.src);
+      result = parseAndExtendImg(f.src, f.dest);
 
       grunt.file.write(f.dest, result.content);
       imgCount += result.count;

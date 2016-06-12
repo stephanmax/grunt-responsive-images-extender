@@ -1,8 +1,8 @@
 {
   "name": "grunt-responsive-images-extender",
   "description": "Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.",
-  "version": "2.0.0",
-  "homepage": "https://github.com/smaxtastic/grunt-responsive-images-extender",
+  "version": "2.0.1",
+  "homepage": "https://github.com/stephanmax/grunt-responsive-images-extender",
   "author": {
     "name": "Stephan Max",
     "email": "stephan.max@gmail.com",
@@ -10,10 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/smaxtastic/grunt-responsive-images-extender.git"
+    "url": "git://github.com/stephanmax/grunt-responsive-images-extender.git"
   },
   "bugs": {
-    "url": "https://github.com/smaxtastic/grunt-responsive-images-extender/issues"
+    "url": "https://github.com/stephanmax/grunt-responsive-images-extender/issues"
   },
   "license": "MIT",
   "engines": {
@@ -23,7 +23,7 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "grunt": "~0.4.5",
+    "grunt": "~0.4.0",
     "grunt-contrib-clean": "^0.5.0",
     "grunt-contrib-jshint": "^0.9.2",
     "grunt-contrib-nodeunit": "^0.3.3"

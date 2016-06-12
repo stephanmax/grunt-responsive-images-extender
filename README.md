@@ -3,7 +3,7 @@
 > Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.
 
 ## Getting Started
-This plugin requires Grunt `~0.4.5`
+This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
 
@@ -252,6 +252,9 @@ Please see this task's [Gruntfile](https://github.com/smaxtastic/grunt-responsiv
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+
+*2.0.1*
+* Switched to POSIX-compatible paths (thanks to [sprrw](https://github.com/sprrw))
 
 *2.0.0*
 

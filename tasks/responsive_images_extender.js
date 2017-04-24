@@ -189,11 +189,11 @@ module.exports = function(grunt) {
         grunt.log.error('No files to process!');
         return;
       }
-
-      result = parseAndExtendImg(f.src);
-
-      grunt.file.write(f.dest, result.content);
-      imgCount += result.count;
+      f. src.forEach(function(src){
+        result = parseAndExtendImg(src);
+        grunt.file.write(f.dest, result.content);
+        imgCount += result.count;
+      })
     });
 
     grunt.log.ok('Processed ' + imgCount.toString().cyan + ' <img> ' + grunt.util.pluralize(imgCount, 'tag/tags'));

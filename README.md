@@ -253,6 +253,11 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
+*3.0.0*
+* Fixed file path to be a string rather than an array (as requested by `path` module since Node 6)
+* Allow for multiple source files per destination file
+* Adjusted files config in Gruntfile (see the [Grunt docs](https://gruntjs.com/configuring-tasks#files-array-format))
+
 *2.0.1*
 * Switched to POSIX-compatible paths (thanks to [sprrw](https://github.com/sprrw))
 

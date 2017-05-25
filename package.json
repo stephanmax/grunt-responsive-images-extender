@@ -1,7 +1,7 @@
 {
   "name": "grunt-responsive-images-extender",
   "description": "Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "homepage": "https://github.com/stephanmax/grunt-responsive-images-extender",
   "author": {
     "name": "Stephan Max",
@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">= 0.12.0"
+    "node": ">= 6.0.0"
   },
   "scripts": {
     "test": "grunt test"

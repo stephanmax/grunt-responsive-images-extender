@@ -182,18 +182,21 @@ module.exports = function(grunt) {
       return {content: $.html(), count: imgElems.length};
     };
 
-    this.files.forEach(function(f) {
-      var result;
+    this.files.forEach(function(file) {
+      var contents = file.src.filter(function(filepath) {
+        if (!grunt.file.exists(filepath)) {
+          grunt.log.warn('Source file "' + filepath + '" not found.');
+          return false;
+        } else {
+          return true;
+        }
+      }).map(function(filepath) {
+        var result = parseAndExtendImg(filepath);
+        imgCount += result.count;
+        return result.content;
+      }).join('\n');
 
-      if (f.src.length === 0) {
-        grunt.log.error('No files to process!');
-        return;
-      }
-
-      result = parseAndExtendImg(f.src);
-
-      grunt.file.write(f.dest, result.content);
-      imgCount += result.count;
+      grunt.file.write(file.dest, contents);
     });
 
     grunt.log.ok('Processed ' + imgCount.toString().cyan + ' <img> ' + grunt.util.pluralize(imgCount, 'tag/tags'));

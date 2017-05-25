@@ -32,9 +32,10 @@ module.exports = function(grunt) {
         baseDir: 'test'
       },
       default_options: {
-        files: {
-          'test/tmp/default_options.html': 'test/fixtures/testing.html'
-        }
+        files: [{
+          src: ['test/fixtures/testing.html'],
+          dest: 'test/tmp/default_options.html'
+        }]
       },
       use_sizes: {
         options: {
@@ -61,18 +62,20 @@ module.exports = function(grunt) {
             }]
           }]
         },
-        files: {
-          'test/tmp/use_sizes.html': 'test/fixtures/testing.html'
-        }
+        files: [{
+          src: ['test/fixtures/testing.html'],
+          dest: 'test/tmp/use_sizes.html'
+        }]
       },
       polyfill_lazyloading: {
         options: {
           srcsetAttributeName: 'data-srcset',
           srcAttribute: 'none'
         },
-        files: {
-          'test/tmp/polyfill_lazyloading.html': 'test/fixtures/testing.html'
-        }
+        files: [{
+          src: ['test/fixtures/testing.html'],
+          dest: 'test/tmp/polyfill_lazyloading.html'
+        }]
       },
       all: {
         options: {
@@ -92,9 +95,10 @@ module.exports = function(grunt) {
             }]
           }]
         },
-        files: {
-          'test/tmp/all.html': 'test/fixtures/testing.html'
-        }
+        files: [{
+          src: ['test/fixtures/testing.html'],
+          dest: 'test/tmp/all.html'
+        }]
       }
     },
 

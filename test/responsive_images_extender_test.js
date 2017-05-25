@@ -41,5 +41,14 @@ exports.responsive_images_extender = {
     test.equal(actual, expected, 'Should describe what the complete behavior is.');
 
     test.done();
+  },
+  multi_src: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('test/tmp/multi_src.html');
+    var expected = grunt.file.read('test/expected/multi_src.html');
+    test.equal(actual, expected, 'Should describe what the multi file src behavior is.');
+
+    test.done();
   }
 };

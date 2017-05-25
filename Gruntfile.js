@@ -99,6 +99,12 @@ module.exports = function(grunt) {
           src: ['test/fixtures/testing.html'],
           dest: 'test/tmp/all.html'
         }]
+      },
+      multi_src: {
+        files: [{
+          src: ['test/fixtures/testing.html', 'test/fixtures/testing2.html'],
+          dest: 'test/tmp/multi_src.html'
+        }]
       }
     },
 

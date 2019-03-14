@@ -1,3 +1,5 @@
+⛔️ *This repository has been archived and is no longer actively maintained, due to the slow but steady death of the task runner Grunt*.
+
 # grunt-responsive-images-extender
 
 > Extend HTML image tags with srcset and sizes attributes to leverage native responsive images.
